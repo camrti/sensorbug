@@ -56,8 +56,8 @@
 
                 @if (auth()->user()->isTenantAdmin())
                 <flux:navlist.group :heading="__('Tenant Admin')" class="grid">
-                    <flux:navlist.item icon="users" :href="route('users-list')" :current="request()->routeIs('users-list')" wire:navigate>
-                        {{ __('Lista utenti') }}
+                    <flux:navlist.item icon="tag" :href="route('tenant-admin.tracking-interests')" :current="request()->routeIs('tenant-admin.tracking-interests')" wire:navigate>
+                        {{ __('Gestione Tracking Interest') }}
                     </flux:navlist.item>
                 </flux:navlist.group>
                 @endif

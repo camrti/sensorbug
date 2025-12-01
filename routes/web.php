@@ -36,12 +36,17 @@ Route::middleware(['auth'])->group(function () {
     Volt::route('settings/appearance', 'settings.appearance')->name('settings.appearance');
 });
 
-Route::middleware(['auth', 'isAdmin'])->group(function () {
+Route::middleware(['auth', 'isSuperadmin'])->group(function () {
     Route::view('users-list', 'dashboard.users-list')
         ->name('users-list');
 
     Route::view('tenants/{tenant}/users', 'dashboard.users-list')
         ->name('tenants.users');
+});
+
+Route::middleware(['auth', 'isAdmin'])->group(function () {
+    Route::view('tenant-admin/tracking-interests', 'dashboard.tenant-admin-tracking-interests')
+        ->name('tenant-admin.tracking-interests');
 });
 
 Route::middleware(['auth', 'isSuperadmin'])->group(function () {
