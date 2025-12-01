@@ -1,7 +1,7 @@
 <div class="space-y-6">
     <div class="bg-white dark:bg-zinc-900 shadow rounded-sm p-6">
         <div class="flex justify-between items-center mb-6">
-            <h2 class="text-lg font-semibold">Gestione Tracking Interest</h2>
+            <h2 class="text-lg font-semibold">Gestione Tracking Interest - Tenant: {{ auth()->user()->tenant->name }}</h2>
         </div>
 
         @if (session()->has('success'))

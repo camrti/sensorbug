@@ -6,7 +6,7 @@
         </div>
         {{-- end::News-block --}}
 
-        @if(auth()->user()->isAdmin())
+        @if(auth()->user()->isSuperadmin())
         {{-- begin::TI-block --}}
         <div class="">
             <div class="mb-6">
