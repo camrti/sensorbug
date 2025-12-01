@@ -227,11 +227,10 @@ class UsersManagement extends Component
             return ['superadmin' => 'Superadmin'];
         }
 
-        // Altrimenti tutti i ruoli
+        // Altrimenti solo user e tenant_admin (non superadmin)
         return [
             'user' => 'User',
-            'tenant_admin' => 'Tenant Admin',
-            'superadmin' => 'Superadmin'
+            'tenant_admin' => 'Tenant Admin'
         ];
     }
 
