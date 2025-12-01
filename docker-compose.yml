@@ -1,0 +1,28 @@
+services:
+    sensor-dashboard-db:
+        image: mysql:8
+        restart: unless-stopped
+        ports:
+        - "3306:3306"
+        environment:
+        - MYSQL_ROOT_PASSWORD=${DB_PASSWORD}
+        - MYSQL_DATABASE=${DB_DATABASE}
+        - MYSQL_USER=${DB_USERNAME}
+        - MYSQL_PASSWORD=${DB_PASSWORD}
+        volumes:
+        - db-sensor:/var/lib/mysql
+
+    # postgres:
+    #     image: postgres:16
+    #     ports:
+    #     - "${DB_PORT:-5432}:5432"
+    #     environment:
+    #     - POSTGRES_DB=${DB_DATABASE}
+    #     - POSTGRES_USER=${DB_USERNAME}
+    #     - POSTGRES_PASSWORD=${DB_PASSWORD}
+    #     volumes:
+    #     - pg_sensor:/var/lib/postgresql/data
+
+volumes:
+    db-sensor:
+        driver: local

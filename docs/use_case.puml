@@ -1,0 +1,56 @@
+@startuml
+
+left to right direction
+
+
+:Admin:
+:Customer:
+
+rectangle "Sensor Scan Orchestrator" {
+  usecase (Start Scan) as StartScan
+  usecase (Collect all SERP results) as CollectSERPRes
+  usecase (Collect ticket page info) as CollectTicketPageInfo
+}
+
+rectangle "SERPCrawl"{
+  usecase (Find pages for Tracking Interest) as FindPages
+}
+
+rectangle "TicketHawkeye" {
+  usecase (Examine Page) as ExaminePage
+}
+
+rectangle "Sensor Database API" {
+  usecase (Create User) as CreateUser
+  usecase (Add Tracking Interest) as AddTI
+  usecase (Add Shop) as AddShop
+  usecase (Add Page and Ticket info) as AddPageInfo
+  usecase (Get Tracking Interest) as GetTI
+  usecase (Get My TI) as GetMyTI
+  usecase (Get My Found Shops) as GetMyShops
+  usecase (Get My Ticket Pages Info) as GetMyTicketPages
+  usecase (Get My Ticket Info) as GetMyTicketInfo
+}
+
+
+Admin -> CreateUser
+
+' ui-related use cases
+Customer -> AddTI
+Customer -> GetMyTI
+Customer -> GetMyShops
+Customer -> GetMyTicketPages
+Customer -> GetMyTicketInfo
+
+
+' workflow use cases
+Customer --> StartScan
+StartScan --> GetTI: <<include>>
+StartScan --> FindPages: <<include>>
+FindPages ---> CollectSERPRes: <<include>>
+CollectSERPRes ---> AddShop: <<include>>
+CollectSERPRes -> ExaminePage: <<include>>
+ExaminePage ---> CollectTicketPageInfo: <<include>>
+CollectTicketPageInfo -> AddPageInfo: <<include>>
+
+@enduml

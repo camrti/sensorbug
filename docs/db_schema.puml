@@ -1,0 +1,185 @@
+@startuml sensor_db
+!theme plain
+skinparam linetype ortho
+skinparam dpi 300
+skinparam classAttributeIconSize 0
+
+entity "tracking_interests" as tracking_interests {
+  *id : serial <<PK>>
+  interest : varchar(100) <<NOT NULL>>
+  is_active : boolean <<DEFAULT: false>>
+  created_at : datetime <<NOT NULL>>
+  updated_at : datetime <<NOT NULL>>
+}
+
+entity "users" as users {
+  *id : serial <<PK>>
+  ' ... other user fields ...
+}
+note top of users
+    This is the "users" table provided by laravel.
+    It is used to store customer information.
+end note
+
+entity "customer_tracking_interest" as customer_tracking_interest {
+  *id : serial <<PK>>
+  customer_id : bigint <<FK>> <<NOT NULL>>
+  tracking_interest_id : bigint <<FK>> <<NOT NULL>>
+  is_owner : boolean <<DEFAULT: false>>
+  is_creator : boolean <<DEFAULT: false>>
+  created_at : datetime <<NOT NULL>>
+  updated_at : datetime <<NOT NULL>>
+  --
+  <<UNIQUE>> (customer_id, tracking_interest_id)
+}
+
+entity "web_domains" as web_domains {
+  *id : serial <<PK>>
+  domain : varchar(255) <<NOT NULL>> <<UNIQUE>>
+  country : varchar(50)
+  created_at : datetime <<NOT NULL>>
+  updated_at : datetime <<NOT NULL>>
+}
+
+entity "shops" as shops {
+  *id : serial <<PK>>
+  shop_type : varchar(20) <<NOT NULL>>
+  company_name : varchar(255) <NOT NULL>> <<UNIQUE>>
+  email : varchar(255)
+  phone_number : varchar(30)
+  identification_number : varchar(50)
+  address : varchar(255)
+  notes : varchar(255)
+  is_reported : boolean <<DEFAULT: false>>
+  reported_at : datetime
+  created_at : datetime <<NOT NULL>>
+  updated_at : datetime <<NOT NULL>>
+}
+
+entity "shop_domain" as shop_domain {
+  *id : serial <<PK>>
+  shop_id : bigint <<FK>> <<NOT NULL>>
+  web_domain_id : bigint <<FK>> <<NOT NULL>>
+  created_at : datetime <<NOT NULL>>
+  updated_at : datetime <<NOT NULL>>
+}
+
+entity "sellers" as sellers {
+  *id : serial <<PK>>
+  found_on_domain_id : bigint <<FK>> <<NOT NULL>>
+  name : varchar(255)
+  email : varchar(255)
+  phone_number : varchar(30)
+  identification_number : varchar(50)
+  address : varchar(255)
+  notes : varchar(255)
+  affiliated_with_seller_id : bigint <<FK>>
+  is_reported : boolean <<DEFAULT: false>>
+  reported_at : datetime
+  created_at : datetime <<NOT NULL>>
+  updated_at : datetime <<NOT NULL>>
+}
+
+entity "pages" as pages {
+  *id : serial <<PK>>
+  shop_id : bigint <<FK>> <<NOT NULL>>
+  whitelist_class : varchar(30) <<DEFAULT: 'Unknown'>> <<NOT NULL>>
+  currently_sells : boolean <<DEFAULT: true>>
+  is_selling_page : boolean <<DEFAULT: false>>
+  seller_id : bigint <<FK>>
+  redirects_to_page_id : bigint <<FK>>
+  page_url : varchar(500) <<NOT NULL>> <<UNIQUE>>
+  notes : varchar(255)
+  is_reported : boolean <<DEFAULT: false>>
+  reported_at : datetime
+  created_at : datetime <<NOT NULL>>
+  updated_at : datetime <<NOT NULL>>
+}
+
+entity "search_query_strings" as search_query_strings {
+  *id : serial <<PK>>
+  tracking_interest_id : bigint <<FK>> <<NOT NULL>>
+  search_intent : varchar(20)
+  query_string : varchar(255) <<NOT NULL>>
+  language_code : varchar(2) <<NOT NULL>>
+  source : varchar(20)
+  created_at : datetime <<NOT NULL>>
+  updated_at : datetime <<NOT NULL>>
+  --
+  <<UNIQUE>> (tracking_interest_id, query_string, language_code)
+}
+
+entity "sqs_search_volume" as sqs_search_volume {
+  *id : serial <<PK>>
+  search_query_string_id : int <<NOT NULL>> <<FK>>
+  volume : unsigned int <<NOT NULL>>
+  from_date : datetime <<NOT NULL>>
+  to_date : datetime <<NOT NULL>>
+  data_source : varchar(50) <<NOT NULL>>
+  description : varchar(255)
+  created_at : datetime <<NOT NULL>>
+  updated_at : datetime <<NOT NULL>>
+}
+
+entity "pages_found" as pages_found {
+  *id : serial <<PK>>
+  page_id : bigint <<FK>> <<NOT NULL>>
+  search_query_string_id : bigint <<FK>> <<NOT NULL>>
+  tracking_interest_id : bigint <<FK>> <<NOT NULL>>
+  search_platform : varchar(100) <<NOT NULL>>
+  serp_ads : boolean <<DEFAULT: false>>
+  serp_position : integer <<NOT NULL>>
+  created_at : datetime <<NOT NULL>>
+  updated_at : datetime <<NOT NULL>>
+}
+
+entity "ticket_info" as ticket_info {
+  *id : serial <<PK>>
+  page_id : int <<NOT NULL>> <<FK>>
+  price_at : datetime <<NOT NULL>>
+  currency : varchar(20) <<NOT NULL>>
+  ticket_type : varchar(20) <<NOT NULL>>
+  selling_price : decimal(19,4) <<NOT NULL>>
+  description : varchar(255)
+  created_at : datetime <<NOT NULL>>
+  updated_at : datetime <<NOT NULL>>
+}
+
+entity "news" as news {
+    *id : serial <<PK>>
+    text: varchar(500) <<NOT NULL>>
+    for_user_id : bigint <<FK>>
+    for_tracking_interest_id : bigint <<FK>>
+    added_by_user_id : bigint <<FK>> <<NOT NULL>>
+    created_at : datetime <<NOT NULL>>
+    updated_at : datetime <<NOT NULL>>
+}
+
+' Relationships
+
+users ||--o{ customer_tracking_interest : "has"
+tracking_interests ||--o{ customer_tracking_interest : "is associated with"
+
+web_domains ||--o{ shop_domain : "has"
+web_domains ||--o{ sellers : "found on"
+
+shops ||--o{ shop_domain : "has"
+shops ||--o{ pages : "source of"
+
+sellers ||--o{ sellers : "affiliated with"
+sellers ||--o{ pages : "sells on"
+
+pages ||--o{ pages : "redirects to"
+pages ||--o{ ticket_info : "contains ticket info"
+
+tracking_interests ||--o{ search_query_strings : "related to"
+
+pages ||--o{ pages_found : "found on"
+search_query_strings ||--o{ pages_found : "used to find"
+search_query_strings ||--o{ sqs_search_volume : "has search volume"
+tracking_interests ||--o{ pages_found : "relevant to"
+
+news ||--o{ users : "for user"
+news ||--o{ users : "added by user"
+
+@enduml
