@@ -41,12 +41,6 @@ final class UsersTable extends PowerGridComponent
             $query->where('tenant_id', auth()->user()->tenant_id);
         }
 
-        // Leggi dalla rotta
-        $tenantId = request()->route('tenant');
-        if ($tenantId) {
-            $query->where('tenant_id', $tenantId);
-        }
-
         return $query;
     }
 

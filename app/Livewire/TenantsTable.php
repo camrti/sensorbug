@@ -45,10 +45,10 @@ final class TenantsTable extends PowerGridComponent
         return PowerGrid::fields()
             ->add('id')
             ->add('name', function (Tenant $model) {
-                $url = route('tenants.users', $model->id);
+                $url = route('users-list') . '?tenant_id=' . $model->id;
                 return "<a href='{$url}'
                            wire:navigate
-                           class='hover:underline cursor-pointer'>
+                           class='hover:underline cursor-pointer text-blue-600 dark:text-blue-400'>
                             {$model->name}
                         </a>";
             })
