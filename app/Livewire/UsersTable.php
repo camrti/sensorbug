@@ -29,6 +29,8 @@ final class UsersTable extends PowerGridComponent
             PowerGrid::footer()
                 ->showPerPage()
                 ->showRecordCount(),
+            PowerGrid::filters()
+                ->showFilters(),
         ];
     }
 
