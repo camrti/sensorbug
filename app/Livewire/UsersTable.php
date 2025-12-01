@@ -29,8 +29,6 @@ final class UsersTable extends PowerGridComponent
             PowerGrid::footer()
                 ->showPerPage()
                 ->showRecordCount(),
-            PowerGrid::filters()
-                ->showFilters(),
         ];
     }
 
@@ -41,6 +39,11 @@ final class UsersTable extends PowerGridComponent
         // Se è tenant_admin, mostra solo utenti del suo tenant
         if (auth()->user()->isTenantAdmin()) {
             $query->where('tenant_id', auth()->user()->tenant_id);
+        }
+
+        // Applica filtro tenant_id da query string
+        if (request()->has('tenant_id') && request()->get('tenant_id')) {
+            $query->where('tenant_id', request()->get('tenant_id'));
         }
 
         return $query;
