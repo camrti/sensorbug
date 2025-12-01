@@ -10,7 +10,7 @@ use Livewire\Component;
 class UsersManagement extends Component
 {
     public $showCreateModal = false;
-    public $showChangePasswordModal = false;
+    public $showEditModal = false;
 
     public $first_name = '';
     public $last_name = '';
@@ -20,12 +20,11 @@ class UsersManagement extends Component
     public $tenant_id = null;
     public $is_enabled = true;
 
-    public $selectedUserId = null;
-    public $newPassword = '';
+    public $editUserId = null;
 
     protected $listeners = [
         'deleteUser' => 'deleteUser',
-        'openChangePasswordModal' => 'openChangePasswordModal',
+        'openEditModal' => 'openEditModal',
         'showError' => 'showError'
     ];
 
@@ -86,46 +85,84 @@ class UsersManagement extends Component
         session()->flash('success', 'Utente creato con successo!');
     }
 
-    public function openChangePasswordModal($userId)
+    public function openEditModal($userId)
     {
-        $this->selectedUserId = $userId;
-        $this->newPassword = '';
-        $this->showChangePasswordModal = true;
-    }
+        if (!auth()->user()->isSuperadmin()) {
+            session()->flash('error', 'Solo i superadmin possono modificare utenti.');
+            return;
+        }
 
-    public function closeChangePasswordModal()
-    {
-        $this->showChangePasswordModal = false;
-        $this->reset(['selectedUserId', 'newPassword']);
-        $this->resetValidation();
-    }
-
-    public function changePassword()
-    {
-        $this->validate([
-            'newPassword' => 'required|string|min:8',
-        ], [
-            'newPassword.required' => 'La password è obbligatoria.',
-            'newPassword.min' => 'La password deve avere almeno 8 caratteri.',
-        ]);
-
-        $user = User::find($this->selectedUserId);
+        $user = User::find($userId);
         if (!$user) {
             return;
         }
 
-        // Se è tenant_admin, verifica che l'utente appartenga al suo tenant
-        if (auth()->user()->isTenantAdmin() && $user->tenant_id !== auth()->user()->tenant_id) {
-            session()->flash('error', 'Non puoi modificare utenti di altri tenant.');
-            $this->closeChangePasswordModal();
+        $this->editUserId = $userId;
+        $nameParts = explode(' ', $user->name, 2);
+        $this->first_name = $nameParts[0] ?? '';
+        $this->last_name = $nameParts[1] ?? '';
+        $this->email = $user->email;
+        $this->password = '';
+        $this->user_role = $user->user_role;
+        $this->tenant_id = $user->tenant_id;
+        $this->is_enabled = $user->is_enabled;
+        $this->showEditModal = true;
+    }
+
+    public function closeEditModal()
+    {
+        $this->showEditModal = false;
+        $this->reset(['editUserId', 'first_name', 'last_name', 'email', 'password', 'user_role', 'tenant_id', 'is_enabled']);
+        $this->resetValidation();
+    }
+
+    public function updateUser()
+    {
+        if (!auth()->user()->isSuperadmin()) {
+            session()->flash('error', 'Solo i superadmin possono modificare utenti.');
             return;
         }
 
-        $user->password = Hash::make($this->newPassword);
+        $this->validate([
+            'first_name' => 'required|string|min:2|max:255',
+            'last_name' => 'required|string|min:2|max:255',
+            'email' => 'required|email|unique:users,email,' . $this->editUserId,
+            'password' => 'nullable|string|min:8',
+            'user_role' => 'required|in:superadmin,tenant_admin,user',
+            'tenant_id' => 'required|exists:tenants,id',
+            'is_enabled' => 'boolean',
+        ], [
+            'first_name.required' => 'Il nome è obbligatorio.',
+            'first_name.min' => 'Il nome deve avere almeno 2 caratteri.',
+            'last_name.required' => 'Il cognome è obbligatorio.',
+            'last_name.min' => 'Il cognome deve avere almeno 2 caratteri.',
+            'email.required' => 'La email è obbligatoria.',
+            'email.email' => 'Inserisci una email valida.',
+            'email.unique' => 'Questa email è già in uso.',
+            'password.min' => 'La password deve avere almeno 8 caratteri.',
+            'user_role.required' => 'Il ruolo è obbligatorio.',
+            'tenant_id.required' => 'Il tenant è obbligatorio.',
+            'tenant_id.exists' => 'Il tenant selezionato non esiste.',
+        ]);
+
+        $user = User::find($this->editUserId);
+        if (!$user) {
+            return;
+        }
+
+        $user->name = $this->first_name . ' ' . $this->last_name;
+        $user->email = $this->email;
+        if ($this->password) {
+            $user->password = Hash::make($this->password);
+        }
+        $user->user_role = $this->user_role;
+        $user->tenant_id = $this->tenant_id;
+        $user->is_enabled = $this->is_enabled;
         $user->save();
 
-        $this->closeChangePasswordModal();
-        session()->flash('success', 'Password cambiata con successo!');
+        $this->closeEditModal();
+        $this->dispatch('pg:eventRefresh-users-table-bvutf4-table');
+        session()->flash('success', 'Utente modificato con successo!');
     }
 
     public function showError($message)

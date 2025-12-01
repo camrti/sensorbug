@@ -165,32 +165,103 @@
         </div>
     @endif
 
-    @if($showChangePasswordModal)
-        <div class="fixed inset-0 z-50 overflow-y-auto" x-data="{ show: @entangle('showChangePasswordModal') }" x-show="show">
+    @if($showEditModal)
+        <div class="fixed inset-0 z-50 overflow-y-auto" x-data="{ show: @entangle('showEditModal') }" x-show="show">
             <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
                 <div class="fixed inset-0 backdrop-blur-sm bg-gray-500/10 dark:bg-black/10 transition-opacity"
-                     wire:click="closeChangePasswordModal"></div>
+                     wire:click="closeEditModal"></div>
 
                 <div class="inline-block align-bottom bg-white dark:bg-zinc-900 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
-                    <form wire:submit.prevent="changePassword">
+                    <form wire:submit.prevent="updateUser">
                         <div class="bg-white dark:bg-zinc-900 px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
                             <div class="sm:flex sm:items-start">
                                 <div class="mt-3 text-center sm:mt-0 sm:text-left w-full">
                                     <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-gray-100 mb-4">
-                                        Cambia Password
+                                        Modifica Utente
                                     </h3>
 
                                     <div class="space-y-4">
                                         <div>
-                                            <label for="newPassword" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                                Nuova Password
+                                            <label for="edit_first_name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                                Nome
                                             </label>
-                                            <flux:input wire:model="newPassword"
+                                            <flux:input wire:model="first_name"
+                                                       id="edit_first_name"
+                                                       placeholder="Mario" />
+                                            @error('first_name') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+                                        </div>
+
+                                        <div>
+                                            <label for="edit_last_name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                                Cognome
+                                            </label>
+                                            <flux:input wire:model="last_name"
+                                                       id="edit_last_name"
+                                                       placeholder="Rossi" />
+                                            @error('last_name') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+                                        </div>
+
+                                        <div>
+                                            <label for="edit_email" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                                Email
+                                            </label>
+                                            <flux:input wire:model="email"
+                                                       type="email"
+                                                       id="edit_email"
+                                                       placeholder="mario.rossi@esempio.it" />
+                                            @error('email') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+                                        </div>
+
+                                        <div>
+                                            <label for="edit_password" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                                Password
+                                            </label>
+                                            <flux:input wire:model="password"
                                                        type="password"
-                                                       id="newPassword"
-                                                       placeholder="Inserisci la nuova password"
+                                                       id="edit_password"
+                                                       placeholder="Lascia vuoto per non modificare"
                                                        viewable />
-                                            @error('newPassword') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+                                            @error('password') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+                                        </div>
+
+                                        <div>
+                                            <label for="edit_tenant_id" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                                Tenant
+                                            </label>
+                                            <select wire:model.live="tenant_id"
+                                                   id="edit_tenant_id"
+                                                   class="w-full rounded-md border-gray-300 dark:border-zinc-600 shadow-sm focus:border-zinc-500 focus:ring-zinc-500 dark:bg-zinc-800 dark:text-gray-300">
+                                                <option value="">Seleziona un tenant</option>
+                                                @foreach($tenants as $tenant)
+                                                    <option value="{{ $tenant->id }}">{{ $tenant->name }}</option>
+                                                @endforeach
+                                            </select>
+                                            @error('tenant_id') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+                                        </div>
+
+                                        <div>
+                                            <label for="edit_user_role" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                                Ruolo
+                                            </label>
+                                            <select wire:model="user_role"
+                                                   id="edit_user_role"
+                                                   class="w-full rounded-md border-gray-300 dark:border-zinc-600 shadow-sm focus:border-zinc-500 focus:ring-zinc-500 dark:bg-zinc-800 dark:text-gray-300">
+                                                @foreach($this->availableRoles as $value => $label)
+                                                    <option value="{{ $value }}">{{ $label }}</option>
+                                                @endforeach
+                                            </select>
+                                            @error('user_role') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+                                        </div>
+
+                                        <div class="space-y-2 pt-2">
+                                            <div class="flex items-center">
+                                                <label class="flex items-center">
+                                                    <input type="checkbox"
+                                                           wire:model="is_enabled"
+                                                           class="rounded border-gray-300 text-zinc-700 shadow-sm focus:ring-zinc-500 dark:bg-zinc-800 dark:border-zinc-600 dark:text-zinc-400">
+                                                    <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">Utente abilitato</span>
+                                                </label>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -199,11 +270,11 @@
                         <div class="bg-gray-50 dark:bg-zinc-800 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
                             <button type="submit"
                                     class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-zinc-700 text-base font-medium text-white hover:bg-zinc-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-zinc-500 dark:bg-zinc-600 dark:hover:bg-zinc-700 sm:ml-3 sm:w-auto sm:text-sm">
-                                Cambia Password
+                                Salva Modifiche
                             </button>
                             <button type="button"
-                                    wire:click="closeChangePasswordModal"
-                                    class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 dark:border-zinc-600 shadow-sm px-4 py-2 bg-white dark:bg-zinc-800 text-base font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-zinc-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-zinc-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+                                    wire:click="closeEditModal"
+                                    class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 dark:border-zinc-600 shadow-sm px-4 py-2 bg-white dark:bg-zinc-800 text-base font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-zinc-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
                                 Annulla
                             </button>
                         </div>
