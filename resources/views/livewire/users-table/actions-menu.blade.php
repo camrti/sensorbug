@@ -10,6 +10,7 @@
     <div x-show="open"
          @click.away="open = false"
          x-transition
+         style="display: none;"
          class="absolute right-0 mt-2 w-48 bg-white dark:bg-zinc-800 rounded-md shadow-lg z-10 border border-zinc-200 dark:border-zinc-700">
         <button wire:click="$dispatch('openEditModal', { userId: {{ $userId }} })"
                 @click="open = false"
