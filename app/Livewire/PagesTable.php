@@ -34,7 +34,7 @@ final class PagesTable extends PowerGridComponent
 
     public function datasource(): Builder
     {
-        $selectedTI = session('selected_tracking_interest');
+        $selectedTI = session('selected_tracking_interest_' . auth()->id());
 
         if ($selectedTI) {
             return Page::query()

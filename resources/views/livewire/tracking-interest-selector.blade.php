@@ -19,13 +19,13 @@ new class extends Component {
 
     public function selectInterest($interestId)
     {
-        Session::put('selected_tracking_interest', $interestId);
-        $this->dispatch('tracking-interest-selected'); // Event che altri componenti possono ascoltare
+        Session::put('selected_tracking_interest_' . auth()->id(), $interestId);
+        $this->dispatch('tracking-interest-selected');
     }
 
     public function clearSelection()
     {
-        Session::forget('selected_tracking_interest');
+        Session::forget('selected_tracking_interest_' . auth()->id());
         $this->dispatch('tracking-interest-cleared');
     }
 }; ?>
@@ -33,9 +33,9 @@ new class extends Component {
 <div>
     <flux:dropdown>
         <flux:button icon:trailing="chevron-down">
-            @if(Session::has('selected_tracking_interest'))
+            @if(Session::has('selected_tracking_interest_' . auth()->id()))
                 @php
-                    $selectedInterest = App\Models\TrackingInterest::find(Session::get('selected_tracking_interest'));
+                    $selectedInterest = App\Models\TrackingInterest::find(Session::get('selected_tracking_interest_' . auth()->id()));
                 @endphp
                 @if($selectedInterest)
                     {{ $selectedInterest->interest }}
@@ -50,7 +50,7 @@ new class extends Component {
             @endif
         </flux:button>
         <flux:menu>
-            @if(Session::has('selected_tracking_interest'))
+            @if(Session::has('selected_tracking_interest_' . auth()->id()))
                 <flux:menu.item wire:click="clearSelection" icon="x-mark" class="text-red-500">
                     {{ __('Rimuovi selezione') }}
                 </flux:menu.item>

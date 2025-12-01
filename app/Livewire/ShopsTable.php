@@ -33,7 +33,7 @@ final class ShopsTable extends PowerGridComponent
 
     public function datasource(): Builder
     {
-        $selectedTrackingInterest = session('selected_tracking_interest');
+        $selectedTrackingInterest = session('selected_tracking_interest_' . auth()->id());
 
         if ($selectedTrackingInterest) {
             return Shop::query()

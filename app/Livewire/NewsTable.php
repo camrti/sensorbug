@@ -35,7 +35,7 @@ class NewsTable extends Component
     public function render()
     {
         $user = Auth::user();
-        $selectedInterestId = Session::get('selected_tracking_interest');
+        $selectedInterestId = Session::get('selected_tracking_interest_' . auth()->id());
 
         if (!$selectedInterestId) {
             $news = News::where('for_user_id', $user->id)

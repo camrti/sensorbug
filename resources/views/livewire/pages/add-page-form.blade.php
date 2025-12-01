@@ -125,7 +125,7 @@ new class extends Component {
 
     public function getCurrentTrackingInterest()
     {
-        $selectedTI = session('selected_tracking_interest');
+        $selectedTI = session('selected_tracking_interest_' . auth()->id());
         if ($selectedTI) {
             return \App\Models\TrackingInterest::find($selectedTI);
         }
@@ -215,7 +215,7 @@ new class extends Component {
     public function save()
     {
         // Check if a tracking interest is selected
-        $selectedTI = session('selected_tracking_interest');
+        $selectedTI = session('selected_tracking_interest_' . auth()->id());
         if (!$selectedTI) {
             $this->addError('general', 'Nessun interesse di tracciamento selezionato. Seleziona un interesse prima di aggiungere una pagina.');
             return;

@@ -32,7 +32,7 @@ final class SqsTable extends PowerGridComponent
 
     public function datasource(): Builder
     {
-        $ti = session('selected_tracking_interest');
+        $ti = session('selected_tracking_interest_' . auth()->id());
 
         if ($ti) {
             // Fetch search query strings related to the selected tracking interest
