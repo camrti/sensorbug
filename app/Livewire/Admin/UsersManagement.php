@@ -192,6 +192,18 @@ class UsersManagement extends Component
             return;
         }
 
+        // Verifica che non sia l'ultimo superadmin di un tenant di sistema
+        if ($user->isSuperadmin() && $user->tenant && $user->tenant->is_system) {
+            $superadminCount = User::where('tenant_id', $user->tenant_id)
+                ->where('user_role', 'superadmin')
+                ->count();
+
+            if ($superadminCount <= 1) {
+                session()->flash('error', 'Non puoi eliminare l\'ultimo superadmin del tenant di sistema.');
+                return;
+            }
+        }
+
         $user->delete();
 
         session()->flash('success', 'Utente eliminato con successo!');
