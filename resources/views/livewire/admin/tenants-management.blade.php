@@ -160,7 +160,7 @@
 
     <script>
         document.addEventListener('livewire:initialized', () => {
-            Livewire.on('confirmDelete', (event) => {
+            Livewire.on('confirmDeleteTenant', (event) => {
                 let message = event.usersCount > 0
                     ? `Sei sicuro di voler eliminare questo tenant? Verranno eliminati anche tutti i ${event.usersCount} utenti associati.`
                     : 'Sei sicuro di voler eliminare questo tenant?';
