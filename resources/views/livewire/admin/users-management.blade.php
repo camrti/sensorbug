@@ -286,7 +286,7 @@
 
     <script>
         document.addEventListener('livewire:initialized', () => {
-            Livewire.on('confirmDelete', (event) => {
+            Livewire.on('confirmDeleteUser', (event) => {
                 if (confirm('Sei sicuro di voler eliminare questo utente?')) {
                     Livewire.dispatch('deleteUser', { userId: event.userId });
                 }
